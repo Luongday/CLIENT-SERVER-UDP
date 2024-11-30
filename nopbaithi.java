@@ -8,7 +8,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.ImageIcon;
@@ -20,6 +22,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Admin
  */
 public class nopbaithi extends javax.swing.JFrame {
+
     public nopbaithi() {
         initComponents();
     }
@@ -69,7 +72,7 @@ public class nopbaithi extends javax.swing.JFrame {
         });
 
         cbxTime.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        cbxTime.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "--Chọn--", "7 : 15 - 8 : 15", " " }));
+        cbxTime.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "--Chọn--", "7 : 15 AM - 8 : 15 AM", "9 : 00 AM - 10 : 15 AM", "13 : 15 PM - 14 : 15 PM", "15 : 30 PM : 16 : 30 PM", " " }));
         cbxTime.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxTimeActionPerformed(evt);
@@ -177,8 +180,6 @@ public class nopbaithi extends javax.swing.JFrame {
 
     private void cbxTimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTimeActionPerformed
         // TODO add your handling code here:
-        cbxTime.addItem("7 : 15 AM - 8 : 15 AM");
-        cbxTime.addItem("9 : 25 AM - 10 : 25 AM");
     }//GEN-LAST:event_cbxTimeActionPerformed
 
     private void txtFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFileActionPerformed
@@ -198,16 +199,40 @@ public class nopbaithi extends javax.swing.JFrame {
         txtLog.append("[" + currentTime + "] " + message + "\n");
         txtLog.setCaretPosition(txtLog.getDocument().getLength()); // Tự động cuộn xuống cuối
     }
-    
+
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        // TODO add your handling code here:
+        // Lấy dữ liệu từ giao diện
         String serverAddress = txtServer.getText();
-        int port = Integer.parseInt(txtPort.getText());
+        String portText = txtPort.getText();
         String filePath = txtFile.getText();
         String selectedTime = (String) cbxTime.getSelectedItem();
 
+        // Kiểm tra dữ liệu đầu vào
+        if (serverAddress.isEmpty()) {
+            txtLogAction("Vui lòng nhập địa chỉ IP và cổng Port của server.");
+            return;
+        }
+
+        if (selectedTime.equals("--Chọn--")) {
+            txtLogAction("Vui lòng chọn thời gian thi trước khi nộp bài.");
+            return;
+        }
+
         if (filePath.isEmpty()) {
             txtLog.append("Vui lòng chọn file để nộp bài.\n");
+            return;
+        }
+
+        if (filePath.isEmpty() || !(new File(filePath).exists())) {
+            txtLogAction("File không tồn tại hoặc đường dẫn không hợp lệ.");
+            return;
+        }
+
+        int port;
+        try {
+            port = Integer.parseInt(portText);
+        } catch (NumberFormatException ex) {
+            txtLogAction("Cổng phải là một số hợp lệ.");
             return;
         }
 
@@ -227,17 +252,20 @@ public class nopbaithi extends javax.swing.JFrame {
             }
 
             dos.flush();
-            txtLog.append("File đã được nộp thành công!\n");
+            txtLogAction("File đã được nộp thành công!");
             txtLogAction("Nộp bài với file: " + filePath);
-            txtLogAction("Thời gian nộp: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            txtLogAction("Thời gian nộp bài.");
+        } catch (UnknownHostException ex) {
+            txtLogAction("Địa chỉ IP không hợp lệ hoặc không tồn tại: " + serverAddress);
+        } catch (ConnectException ex) {
+            txtLogAction("Không thể kết nối đến server. Vui lòng kiểm tra xem server đã được khởi động chưa.");
         } catch (IOException ex) {
-            txtLog.append("Lỗi khi nộp bài: " + ex.getMessage() + "\n");
+            txtLogAction("Lỗi khi nộp bài: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
-    
-    public static void main(String[] args){
-           try {
+    public static void main(String[] args) {
+        try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
@@ -262,7 +290,7 @@ public class nopbaithi extends javax.swing.JFrame {
             }
         });
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton btnSubmit;
     private javax.swing.JComboBox<String> cbxTime;
@@ -272,7 +300,6 @@ public class nopbaithi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField txtFile;
     private javax.swing.JTextArea txtLog;
