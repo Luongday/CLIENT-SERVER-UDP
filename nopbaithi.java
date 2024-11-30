@@ -4,15 +4,21 @@
  */
 package NOPBAITHI;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -22,6 +28,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Admin
  */
 public class nopbaithi extends javax.swing.JFrame {
+
+    private File selectedFile;
 
     public nopbaithi() {
         initComponents();
@@ -36,7 +44,7 @@ public class nopbaithi extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        selectFile = new javax.swing.JButton();
         cbxTime = new javax.swing.JComboBox<>();
         txtServer = new javax.swing.JTextField();
         txtPort = new javax.swing.JTextField();
@@ -63,27 +71,16 @@ public class nopbaithi extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         jLabel5.setText("Port");
 
-        jButton1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jButton1.setText("Chọn file");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        selectFile.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        selectFile.setText("Chọn file");
+        selectFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                selectFileActionPerformed(evt);
             }
         });
 
         cbxTime.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         cbxTime.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "--Chọn--", "7 : 15 AM - 8 : 15 AM", "9 : 00 AM - 10 : 15 AM", "13 : 15 PM - 14 : 15 PM", "15 : 30 PM : 16 : 30 PM", " " }));
-        cbxTime.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbxTimeActionPerformed(evt);
-            }
-        });
-
-        txtServer.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtServerActionPerformed(evt);
-            }
-        });
 
         btnSubmit.setForeground(new java.awt.Color(255, 51, 51));
         btnSubmit.setText("Nộp Bài");
@@ -134,12 +131,12 @@ public class nopbaithi extends javax.swing.JFrame {
                                             .addComponent(txtFile, javax.swing.GroupLayout.PREFERRED_SIZE, 456, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addGap(18, 18, 18)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(selectFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(txtPort)))))
                         .addGroup(layout.createSequentialGroup()
                             .addGap(409, 409, 409)
                             .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(127, Short.MAX_VALUE))
+                .addContainerGap(135, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -158,7 +155,7 @@ public class nopbaithi extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(txtFile, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(selectFile))
                 .addGap(148, 148, 148)
                 .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -169,36 +166,15 @@ public class nopbaithi extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+    private void selectFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFileActionPerformed
+        // Chọn file
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.showOpenDialog(fileChooser);
-        File imgfile = fileChooser.getSelectedFile();
-        String filepath = imgfile.getAbsolutePath();
-        txtFile.setText(filepath);
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void cbxTimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTimeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbxTimeActionPerformed
-
-    private void txtFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFileActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtFileActionPerformed
-
-    private void txtServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtServerActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtServerActionPerformed
-
-    private void txtLogAction(String message) {
-        // Định dạng thời gian
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String currentTime = LocalDateTime.now().format(formatter);
-
-        // Thêm log với thời gian
-        txtLog.append("[" + currentTime + "] " + message + "\n");
-        txtLog.setCaretPosition(txtLog.getDocument().getLength()); // Tự động cuộn xuống cuối
-    }
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            selectedFile = fileChooser.getSelectedFile();
+            txtFile.setText(selectedFile.getAbsolutePath());
+        }
+    }//GEN-LAST:event_selectFileActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
         // Lấy dữ liệu từ giao diện
@@ -209,12 +185,12 @@ public class nopbaithi extends javax.swing.JFrame {
 
         // Kiểm tra dữ liệu đầu vào
         if (serverAddress.isEmpty()) {
-            txtLogAction("Vui lòng nhập địa chỉ IP và cổng Port của server.");
+            txtLog.append("Vui lòng nhập địa chỉ IP và cổng Port của server.\n");
             return;
         }
 
         if (selectedTime.equals("--Chọn--")) {
-            txtLogAction("Vui lòng chọn thời gian thi trước khi nộp bài.");
+            txtLog.append("Vui lòng chọn thời gian thi trước khi nộp bài.\n");
             return;
         }
 
@@ -223,46 +199,76 @@ public class nopbaithi extends javax.swing.JFrame {
             return;
         }
 
-        if (filePath.isEmpty() || !(new File(filePath).exists())) {
-            txtLogAction("File không tồn tại hoặc đường dẫn không hợp lệ.");
+        File file = new File(filePath);
+        if (!file.exists()) {
+            txtLog.append("File không tồn tại hoặc đường dẫn không hợp lệ.\n");
             return;
         }
 
         int port;
         try {
             port = Integer.parseInt(portText);
+            if (port < 1024 || port > 65535) {
+                txtLog.append("Cổng phải nằm trong khoảng 1024 - 65535.\n");
+                return;
+            }
         } catch (NumberFormatException ex) {
-            txtLogAction("Cổng phải là một số hợp lệ.");
+            txtLog.append("Cổng phải là một số hợp lệ.\n");
             return;
         }
 
-        try ( Socket socket = new Socket(serverAddress, port);  DataOutputStream dos = new DataOutputStream(socket.getOutputStream());  FileInputStream fis = new FileInputStream(filePath)) {
+        try {
+            DatagramSocket socket = new DatagramSocket();
+            InetAddress address = InetAddress.getByName(serverAddress);
 
-            // Gửi thông tin file và thời gian thi
-            dos.writeUTF(selectedTime); // Thời gian thi
-            File file = new File(filePath);
-            dos.writeUTF(file.getName());
-            dos.writeLong(file.length());
+            // Gửi thời gian thi
+            byte[] timeData = selectedTime.getBytes();
+            DatagramPacket timePacket = new DatagramPacket(timeData, timeData.length, address, port);
+            socket.send(timePacket);
 
+            // Gửi thông tin file
+            String fileName = file.getName();
+            byte[] fileNameBytes = fileName.getBytes();
+            DatagramPacket fileNamePacket = new DatagramPacket(fileNameBytes, fileNameBytes.length, address, port);
+            socket.send(fileNamePacket);
+
+            // Gửi kích thước file
+            long fileSize = file.length();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+            dos.writeLong(fileSize);
+            byte[] fileSizeBytes = baos.toByteArray();
+            DatagramPacket fileSizePacket = new DatagramPacket(fileSizeBytes, fileSizeBytes.length, address, port);
+            socket.send(fileSizePacket);
+         
             // Gửi dữ liệu file
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            FileInputStream fis = new FileInputStream(file);
             byte[] buffer = new byte[4096];
             int read;
+            int totalSent = 0;
+
             while ((read = fis.read(buffer)) != -1) {
-                dos.write(buffer, 0, read);
+                DatagramPacket fileDataPacket = new DatagramPacket(buffer, read, address, port);
+                socket.send(fileDataPacket);
+                totalSent += read;
             }
 
-            dos.flush();
-            txtLogAction("File đã được nộp thành công!");
-            txtLogAction("Nộp bài với file: " + filePath);
-            txtLogAction("Thời gian nộp bài.");
-        } catch (UnknownHostException ex) {
-            txtLogAction("Địa chỉ IP không hợp lệ hoặc không tồn tại: " + serverAddress);
-        } catch (ConnectException ex) {
-            txtLogAction("Không thể kết nối đến server. Vui lòng kiểm tra xem server đã được khởi động chưa.");
+            txtLog.append("File đã được gửi thành công!\n");
+            txtLog.append("Ca thi: " + selectedTime + "\n");
+            txtLog.append("Nộp bài với file: " + fileName + "\n");
+            txtLog.append("Kích thước file: " + fileSize + " bytes\n");
+            txtLog.append("Thời gian gửi: " + timestamp);
+            fis.close();
+            socket.close();
         } catch (IOException ex) {
-            txtLogAction("Lỗi khi nộp bài: " + ex.getMessage());
+            txtLog.append("Lỗi khi nộp bài: " + ex.getMessage() + "\n");
         }
     }//GEN-LAST:event_btnSubmitActionPerformed
+
+    private void txtFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFileActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtFileActionPerformed
 
     public static void main(String[] args) {
         try {
@@ -272,35 +278,29 @@ public class nopbaithi extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(nopbaithi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(nopbaithi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(nopbaithi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(nopbaithi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
+        //</editor-fold>
+
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new nopbaithi().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new nopbaithi().setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton btnSubmit;
     private javax.swing.JComboBox<String> cbxTime;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton selectFile;
     private javax.swing.JTextField txtFile;
     private javax.swing.JTextArea txtLog;
     private javax.swing.JTextField txtPort;

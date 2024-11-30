@@ -1,23 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package NOPBAITHI;
-
-/**
- *
- * @author Admin
- */
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 public class ServerUI {
-    public static void main(String[] args) {
-        // Tạo giao diện
+    public static void main(String[] args) throws IOException {
         JFrame frame = new JFrame("Server - Hệ Thống Nhận File");
         JTextArea textArea = new JTextArea(20, 50);
         textArea.setEditable(false);
@@ -26,42 +18,46 @@ public class ServerUI {
         frame.setSize(600, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-        String default_gateway = "127.0.0.1";
         int port = 9900;
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (DatagramSocket serverSocket = new DatagramSocket(port)) {
             textArea.append("Server đang chạy trên port: " + port + "\n");
 
-            while (true) {
-                // Chờ kết nối từ client
-                Socket socket = serverSocket.accept();
-                textArea.append("Kết nối từ client: " + socket.getInetAddress() + "\n");
+        byte[] buffer = new byte[4096];
 
-                // Xử lý dữ liệu từ client
-                try (DataInputStream dis = new DataInputStream(socket.getInputStream());
-                     FileOutputStream fos = new FileOutputStream("received_file_" + System.currentTimeMillis() + ".txt")) {
+        // Nhận thời gian thi
+        DatagramPacket timePacket = new DatagramPacket(buffer, buffer.length);
+        serverSocket.receive(timePacket);
+        String examTime = new String(timePacket.getData(), 0, timePacket.getLength());
+        textArea.append("Ca thi: " + examTime + "\n");
 
-                    // Nhận thông tin file
-                    String fileName = dis.readUTF();
-                    long fileSize = dis.readLong();
-                    textArea.append("Đang nhận file: " + fileName + " (" + fileSize + " bytes)\n");
+        // Nhận tên file
+        DatagramPacket fileNamePacket = new DatagramPacket(buffer, buffer.length);
+        serverSocket.receive(fileNamePacket);
+        String fileName = new String(fileNamePacket.getData(), 0, fileNamePacket.getLength());
+        textArea.append("Tên file: " + fileName + "\n");
 
-                    // Nhận dữ liệu file
-                    byte[] buffer = new byte[4096];
-                    int read;
-                    long totalRead = 0;
-                    while ((read = dis.read(buffer)) != -1) {
-                        fos.write(buffer, 0, read);
-                        totalRead += read;
-                        if (totalRead >= fileSize) break;
-                    }
+        // Nhận kích thước file
+        DatagramPacket fileSizePacket = new DatagramPacket(buffer, buffer.length);
+        serverSocket.receive(fileSizePacket);
+        ByteArrayInputStream bais = new ByteArrayInputStream(fileSizePacket.getData());
+        DataInputStream dis = new DataInputStream(bais);
+        long fileSize = dis.readLong();
 
-                    // Ghi lại thời gian nhận file
-                    String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                    textArea.append("Đã nhận file lúc: " + timestamp + "\n\n");
-                }
-
-                socket.close();
-            }
+        // Nhận dữ liệu file
+        FileOutputStream fos = new FileOutputStream("received_" + fileName);
+        long receivedBytes = 0;
+        while (receivedBytes < fileSize) {
+            DatagramPacket fileDataPacket = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(fileDataPacket);
+            fos.write(fileDataPacket.getData(), 0, fileDataPacket.getLength());
+            receivedBytes += fileDataPacket.getLength();
+        }
+        
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        textArea.append("Đã nhận file lúc: " + timestamp + "\n\n");
+        System.out.println("File đã được nhận thành công!");
+        fos.close();
+        serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
             textArea.append("Lỗi: " + e.getMessage() + "\n");
