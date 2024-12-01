@@ -219,6 +219,7 @@ public class nopbaithi extends javax.swing.JFrame {
         }
 
         try {
+            //Tạo một đối tượng DatagramSocket
             DatagramSocket socket = new DatagramSocket();
             InetAddress address = InetAddress.getByName(serverAddress);
 
@@ -243,7 +244,7 @@ public class nopbaithi extends javax.swing.JFrame {
             socket.send(fileSizePacket);
          
             // Gửi dữ liệu file
-            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());//Lấy thời gian hiện tại
             FileInputStream fis = new FileInputStream(file);
             byte[] buffer = new byte[4096];
             int read;
@@ -261,6 +262,8 @@ public class nopbaithi extends javax.swing.JFrame {
             txtLog.append("Nộp bài với file: " + fileName + "\n");
             txtLog.append("Kích thước file: " + fileSize + " bytes\n");
             txtLog.append("Thời gian gửi: " + timestamp + "\n");
+            // Sau khi gửi thành công, xóa đường dẫn file
+            txtFile.setText("");
             fis.close();
             socket.close();
         } catch (IOException ex) {
