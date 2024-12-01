@@ -42,6 +42,7 @@ public class ServerUI {
         ByteArrayInputStream bais = new ByteArrayInputStream(fileSizePacket.getData());
         DataInputStream dis = new DataInputStream(bais);
         long fileSize = dis.readLong();
+        textArea.append("Kích thước file: " + fileSize + " bytes\n");
 
         // Nhận dữ liệu file
         FileOutputStream fos = new FileOutputStream("received_" + fileName);
@@ -51,11 +52,12 @@ public class ServerUI {
             serverSocket.receive(fileDataPacket);
             fos.write(fileDataPacket.getData(), 0, fileDataPacket.getLength());
             receivedBytes += fileDataPacket.getLength();
+            textArea.append("Đã nhận: " + receivedBytes + " bytes\n");
         }
         
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         textArea.append("Đã nhận file lúc: " + timestamp + "\n\n");
-        System.out.println("File đã được nhận thành công!");
+        textArea.append("File đã được nhận thành công!");
         fos.close();
         serverSocket.close();
         } catch (IOException e) {
