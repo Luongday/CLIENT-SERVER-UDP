@@ -253,16 +253,25 @@ public class CLientUI extends javax.swing.JFrame {
             txtLog.append("Thời gian gửi: " + timestamp + "\n");
 
             FileInputStream fis = new FileInputStream(file);
-            byte[] buffer = new byte[4096];
+            //65507
+            byte[] buffer = new byte[65507];
             int read;
-            int totalSent = 0;
 
             while ((read = fis.read(buffer)) != -1) {
-                DatagramPacket fileDataPacket = new DatagramPacket(buffer, read, address, port);
-                socket.send(fileDataPacket);
-                totalSent += read;
-                //txtLog.append("Đã gửi: " + read + " bytes\n");
+                try
+                {
+                    DatagramPacket fileDataPacket = new DatagramPacket(buffer, read, address, port);
+                    socket.send(fileDataPacket);
+                    Thread.sleep(10);
+                }
+                catch(Exception e)
+                {
+
+                }
             }
+            byte[] endSignal = "END".getBytes();
+            DatagramPacket endPacket = new DatagramPacket(endSignal, endSignal.length, address, port);
+            socket.send(endPacket);
             txtLog.append("[ Success ] : Gửi File Thành Công !\n\n");
             // Sau khi gửi thành công, xóa đường dẫn file
             txtFile.setText("");

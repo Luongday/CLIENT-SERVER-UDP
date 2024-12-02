@@ -50,15 +50,23 @@ public class ServerUI {
                 textArea.append("Kích thước file: " + fileSize + " bytes\n");
 
                 // Nhận dữ liệu file
-                FileOutputStream fos = new FileOutputStream(examTime_Folder+"/"+fileName);
-                long receivedBytes = 0;
-                while (receivedBytes < fileSize)
+                File file = new File(examTime_Folder+"/"+fileName);
+                FileOutputStream fos = new FileOutputStream(file);
+                //long receivedBytes = 0;
+                byte[] bufferr = new byte[65507];
+                while (true)
                 {
-                    DatagramPacket fileDataPacket = new DatagramPacket(buffer, buffer.length);
+                    DatagramPacket fileDataPacket = new DatagramPacket(bufferr, bufferr.length);
                     serverSocket.receive(fileDataPacket);
+                    String receivedData = new String(fileDataPacket.getData(), 0, fileDataPacket.getLength());
+                    if (receivedData.equals("END")) 
+                    {
+                        break;
+                    }
                     fos.write(fileDataPacket.getData(), 0, fileDataPacket.getLength());
-                    receivedBytes += fileDataPacket.getLength();
-                    textArea.append("Đã nhận: " + receivedBytes + " bytes\n");
+                    
+                    //receivedBytes += fileDataPacket.getLength();
+                    //textArea.append("Đã nhận: " + receivedBytes + " bytes/"+fileSize+"\n");
                 }
 
                 String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
