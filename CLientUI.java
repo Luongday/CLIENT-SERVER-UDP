@@ -27,11 +27,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Admin
  */
-public class nopbaithi extends javax.swing.JFrame {
+public class CLientUI extends javax.swing.JFrame {
 
     private File selectedFile;
 
-    public nopbaithi() {
+    public CLientUI() {
         initComponents();
     }
 
@@ -186,23 +186,23 @@ public class nopbaithi extends javax.swing.JFrame {
 
         // Kiểm tra dữ liệu đầu vào
         if (serverAddress.isEmpty()) {
-            txtLog.append("Vui lòng nhập địa chỉ IP và cổng Port của server.\n");
+            txtLog.append("Vui lòng nhập địa chỉ IP và cổng Port của server.\n\n");
             return;
         }
 
         if (selectedTime.equals("--Chọn--")) {
-            txtLog.append("Vui lòng chọn thời gian thi trước khi nộp bài.\n");
+            txtLog.append("Vui lòng chọn thời gian thi trước khi nộp bài.\n\n");
             return;
         }
 
         if (filePath.isEmpty()) {
-            txtLog.append("Vui lòng chọn file để nộp bài.\n");
+            txtLog.append("Vui lòng chọn file để nộp bài.\n\n");
             return;
         }
 
         File file = new File(filePath);
         if (!file.exists()) {
-            txtLog.append("File không tồn tại hoặc đường dẫn không hợp lệ.\n");
+            txtLog.append("File không tồn tại hoặc đường dẫn không hợp lệ.\n\n");
             return;
         }
 
@@ -210,15 +210,17 @@ public class nopbaithi extends javax.swing.JFrame {
         try {
             port = Integer.parseInt(portText);
             if (port < 1024 || port > 65535) {
-                txtLog.append("Cổng phải nằm trong khoảng 1024 - 65535.\n");
+                txtLog.append("Cổng phải nằm trong khoảng 1024 - 65535.\n\n");
                 return;
             }
         } catch (NumberFormatException ex) {
-            txtLog.append("Cổng phải là một số hợp lệ.\n");
+            txtLog.append("Cổng phải là một số hợp lệ.\n\n");
             return;
         }
 
         try {
+            
+            txtLog.append("[ Notification ] : Đang Gửi File\n");
             //Tạo một đối tượng DatagramSocket
             DatagramSocket socket = new DatagramSocket();
             InetAddress address = InetAddress.getByName(serverAddress);
@@ -227,12 +229,14 @@ public class nopbaithi extends javax.swing.JFrame {
             byte[] timeData = selectedTime.getBytes();
             DatagramPacket timePacket = new DatagramPacket(timeData, timeData.length, address, port);
             socket.send(timePacket);
+            txtLog.append("Ca thi: " + selectedTime + "\n");
 
             // Gửi thông tin file
             String fileName = file.getName();
             byte[] fileNameBytes = fileName.getBytes();
             DatagramPacket fileNamePacket = new DatagramPacket(fileNameBytes, fileNameBytes.length, address, port);
             socket.send(fileNamePacket);
+            txtLog.append("Nộp bài với file: " + fileName + "\n");
 
             // Gửi kích thước file
             long fileSize = file.length();
@@ -242,9 +246,12 @@ public class nopbaithi extends javax.swing.JFrame {
             byte[] fileSizeBytes = baos.toByteArray();
             DatagramPacket fileSizePacket = new DatagramPacket(fileSizeBytes, fileSizeBytes.length, address, port);
             socket.send(fileSizePacket);
+            txtLog.append("Kích thước file: " + fileSize + " bytes\n");
          
             // Gửi dữ liệu file
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());//Lấy thời gian hiện tại
+            txtLog.append("Thời gian gửi: " + timestamp + "\n");
+            
             FileInputStream fis = new FileInputStream(file);
             byte[] buffer = new byte[4096];
             int read;
@@ -254,14 +261,9 @@ public class nopbaithi extends javax.swing.JFrame {
                 DatagramPacket fileDataPacket = new DatagramPacket(buffer, read, address, port);
                 socket.send(fileDataPacket);
                 totalSent += read;
-                txtLog.append("Đã gửi: " + read + " bytes\n");
+                //txtLog.append("Đã gửi: " + read + " bytes\n");
             }
-
-            txtLog.append("File đã được gửi thành công!\n");
-            txtLog.append("Ca thi: " + selectedTime + "\n");
-            txtLog.append("Nộp bài với file: " + fileName + "\n");
-            txtLog.append("Kích thước file: " + fileSize + " bytes\n");
-            txtLog.append("Thời gian gửi: " + timestamp + "\n");
+            txtLog.append("[ Success ] : Gửi File Thành Công !\n\n");
             // Sau khi gửi thành công, xóa đường dẫn file
             txtFile.setText("");
             fis.close();
@@ -284,7 +286,7 @@ public class nopbaithi extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(nopbaithi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CLientUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -292,7 +294,7 @@ public class nopbaithi extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new nopbaithi().setVisible(true);
+            new CLientUI().setVisible(true);
         });
     }
 
