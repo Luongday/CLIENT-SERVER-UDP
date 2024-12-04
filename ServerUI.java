@@ -11,7 +11,7 @@ import javax.swing.JTextArea;
 public class ServerUI {
     private static JFrame frame = new JFrame("Server - Hệ Thống Nhận File");
     private static JTextArea textArea = new JTextArea(20, 50);
-    private static int port = 9900;
+    private static int port = 9999;
     
     private static void receiveData()
     {
@@ -52,21 +52,15 @@ public class ServerUI {
                 // Nhận dữ liệu file
                 File file = new File(examTime_Folder+"/"+fileName);
                 FileOutputStream fos = new FileOutputStream(file);
-                //long receivedBytes = 0;
+                long receivedBytes = 0;
                 byte[] bufferr = new byte[65507];
-                while (true)
+                while (receivedBytes<fileSize)
                 {
                     DatagramPacket fileDataPacket = new DatagramPacket(bufferr, bufferr.length);
                     serverSocket.receive(fileDataPacket);
-                    String receivedData = new String(fileDataPacket.getData(), 0, fileDataPacket.getLength());
-                    if (receivedData.equals("END")) 
-                    {
-                        break;
-                    }
                     fos.write(fileDataPacket.getData(), 0, fileDataPacket.getLength());
-                    
-                    //receivedBytes += fileDataPacket.getLength();
-                    //textArea.append("Đã nhận: " + receivedBytes + " bytes/"+fileSize+"\n");
+                    receivedBytes += fileDataPacket.getLength();
+                    textArea.append("Đã nhận: " + receivedBytes + " bytes/"+fileSize+" bytes\n");
                 }
 
                 String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -76,7 +70,6 @@ public class ServerUI {
                 fos.close();
                 serverSocket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
                     textArea.append("Lỗi: " + e.getMessage() + "\n");
                 }
             }

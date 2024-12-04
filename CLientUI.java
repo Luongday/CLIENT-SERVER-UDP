@@ -9,19 +9,12 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -33,6 +26,7 @@ public class CLientUI extends javax.swing.JFrame {
 
     public CLientUI() {
         initComponents();
+        txtPort.setText("9999");
     }
 
     @SuppressWarnings("unchecked")
@@ -80,7 +74,7 @@ public class CLientUI extends javax.swing.JFrame {
         });
 
         cbxTime.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        cbxTime.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"--Chọn--", "7 : 15 AM - 8 : 15 AM", "9 : 00 AM - 10 : 15 AM", "13 : 15 PM - 14 : 15 PM", "15 : 30 PM - 16 : 30 PM", " "}));
+        cbxTime.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"--Chọn--", "7 : 15 AM - 8 : 15 AM", "9 : 00 AM - 10 : 15 AM", "13 : 15 PM - 14 : 15 PM", "15 : 30 PM - 16 : 30 PM"}));
 
         btnSubmit.setForeground(new java.awt.Color(255, 51, 51));
         btnSubmit.setText("Nộp Bài");
@@ -253,7 +247,6 @@ public class CLientUI extends javax.swing.JFrame {
             txtLog.append("Thời gian gửi: " + timestamp + "\n");
 
             FileInputStream fis = new FileInputStream(file);
-            //65507
             byte[] buffer = new byte[65507];
             int read;
 
@@ -269,9 +262,6 @@ public class CLientUI extends javax.swing.JFrame {
 
                 }
             }
-            byte[] endSignal = "END".getBytes();
-            DatagramPacket endPacket = new DatagramPacket(endSignal, endSignal.length, address, port);
-            socket.send(endPacket);
             txtLog.append("[ Success ] : Gửi File Thành Công !\n\n");
             // Sau khi gửi thành công, xóa đường dẫn file
             txtFile.setText("");
